@@ -16,7 +16,7 @@
  */
 
 package org.apache.mnemonic;
-
+//import java.nio.ByteBuffer;
 /**
  *
  *
@@ -54,6 +54,10 @@ public abstract class Person<E> implements Durable, Comparable<Person<E>> {
     if (0 == ret) {
       ret = getName().compareTo(anotherPerson.getName());
     }
+    if (0 == ret) {
+      ret = (int) (getNamebuffer().getSize() - anotherPerson.getNamebuffer().getSize());
+    }
+ 
     return ret;
   }
 
@@ -69,6 +73,13 @@ public abstract class Person<E> implements Durable, Comparable<Person<E>> {
   @DurableSetter
   public abstract void setName(String name, boolean destroy)
       throws OutOfHybridMemory, RetrieveDurableEntityError;
+
+  @DurableGetter
+  public abstract MemBufferHolder getNamebuffer();
+
+  @DurableSetter
+  public abstract void setNamebuffer(MemBufferHolder mbh, boolean destroy);
+
 
   @DurableGetter
   public abstract Person<E> getMother() throws RetrieveDurableEntityError;

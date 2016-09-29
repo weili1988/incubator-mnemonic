@@ -25,7 +25,7 @@ package org.apache.mnemonic;
 import java.nio.ByteBuffer;
 import java.util.Random;
 import java.util.UUID;
-
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class DurablePersonNGTest {
@@ -63,7 +63,7 @@ public class DurablePersonNGTest {
 
     long keyidx = 0;
     long val;
-
+    MemBufferHolder<?> mbh;
     try {
       while (true) {
         // if (keyidx >= KEYCAPACITY) break;
@@ -78,25 +78,54 @@ public class DurablePersonNGTest {
         }
 
         person = PersonFactory.create(act);
+        int size = rand.nextInt(1024 * 1024) + 1024 * 1024;
+/////////////////////////if size is smaller than remaining act capacity////
+
+        mbh = act.createBuffer(size);
+        if (mbh != null) {
+          Assert.assertNotNull(mbh);
+          for (int i = 0; i < size; i++) {
+            mbh.get().put((byte) rand.nextInt(255));
+          }
+          person.setNamebuffer(mbh, true);
+          mbh.destroy();
+        }
         person.setAge((short) rand.nextInt(50));
         person.setName(String.format("Name: [%s]", UUID.randomUUID().toString()), true);
         person.setName(String.format("Name: [%s]", UUID.randomUUID().toString()), true);
         person.setName(String.format("Name: [%s]", UUID.randomUUID().toString()), true);
         person.setName(String.format("Name: [%s]", UUID.randomUUID().toString()), true);
+        //person.setNamebuffer(mbh, true);
+
+//        mbh.destroy();
 
         act.setHandler(keyidx, person.getHandler());
 
         for (int deep = 0; deep < rand.nextInt(100); ++deep) {
 
           mother = PersonFactory.create(act);
+          mbh = act.createBuffer(size);
+          if (mbh != null) {
+            Assert.assertNotNull(mbh);
+            for (int i = 0; i < size; i++) {
+              mbh.get().put((byte) rand.nextInt(255));
+            }
+            mother.setNamebuffer(mbh, true);
+
+            mbh.destroy();
+          }
+          //mother = PersonFactory.create(act);
           mother.setAge((short) (50 + rand.nextInt(50)));
           mother.setName(String.format("Name: [%s]", UUID.randomUUID().toString()), true);
 
+//          mother.setNamebuffer(mbh, true);
           person.setMother(mother, true);
 
           person = mother;
 
+//          mbh.destroy();
         }
+//        mbh.destroy();
         ++keyidx;
       }
     } finally {
