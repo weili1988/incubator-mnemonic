@@ -64,6 +64,7 @@ public class DurablePersonNGTest {
     long keyidx = 0;
     long val;
     MemBufferHolder<?> mbh;
+    MemChunkHolder<?> mch;
     try {
       while (true) {
         // if (keyidx >= KEYCAPACITY) break;
@@ -87,17 +88,26 @@ public class DurablePersonNGTest {
           for (int i = 0; i < size; i++) {
             mbh.get().put((byte) rand.nextInt(255));
           }
-          person.setNamebuffer(mbh, true);
+          person.setPicture(mbh, true);
           mbh.destroy();
+        }
+        mch = act.createChunk(size);
+        if (mch != null) {
+          Assert.assertNotNull(mch);
+         /* for (int i = 0; i < size; i++) {
+            mch.get().put((byte) rand.nextInt(255));
+          }*/
+          person.setFingerprint(mch, true);
+          mch.destroy();
         }
         person.setAge((short) rand.nextInt(50));
         person.setName(String.format("Name: [%s]", UUID.randomUUID().toString()), true);
         person.setName(String.format("Name: [%s]", UUID.randomUUID().toString()), true);
         person.setName(String.format("Name: [%s]", UUID.randomUUID().toString()), true);
         person.setName(String.format("Name: [%s]", UUID.randomUUID().toString()), true);
-        //person.setNamebuffer(mbh, true);
 
-//        mbh.destroy();
+
+
 
         act.setHandler(keyidx, person.getHandler());
 
@@ -110,15 +120,24 @@ public class DurablePersonNGTest {
             for (int i = 0; i < size; i++) {
               mbh.get().put((byte) rand.nextInt(255));
             }
-            mother.setNamebuffer(mbh, true);
+            mother.setPicture(mbh, true);
 
             mbh.destroy();
           }
           //mother = PersonFactory.create(act);
+          mch = act.createChunk(size);
+          if (mch != null) {
+            Assert.assertNotNull(mch);
+           /* for (int i = 0; i < size; i++) {
+              mch.get().put((byte) rand.nextInt(255));
+            }*/
+            mother.setFingerprint(mch, true);
+            mch.destroy();
+          }
           mother.setAge((short) (50 + rand.nextInt(50)));
           mother.setName(String.format("Name: [%s]", UUID.randomUUID().toString()), true);
 
-//          mother.setNamebuffer(mbh, true);
+
           person.setMother(mother, true);
 
           person = mother;
