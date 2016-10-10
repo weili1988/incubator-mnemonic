@@ -19,7 +19,7 @@ package org.apache.mnemonic;
 import java.nio.ByteBuffer;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
-/**
+/*
  *
  *
  */
@@ -46,13 +46,22 @@ public abstract class Person<E> implements Durable, Comparable<Person<E>> {
   public void testOutput() throws RetrieveDurableEntityError {
     System.out.printf("Person %s, Age: %d ( %s ) \n", getName(), getAge(),
         null == getMother() ? "No Recorded Mother" : "Has Recorded Mother");
-    ByteBuffer mres = (ByteBuffer) getPicture().get();
-    byte bytes[] = new byte[mres.capacity()];
-    mres.get(bytes, 0, bytes.length);
-    Checksum checksum = new CRC32();
-    checksum.update(bytes, 0, bytes.length);
-    long checksumValue = checksum.getValue();
-    System.out.println("Size of Picture buffer: " + checksumValue);
+    if (null != getPicture()) {
+      System.err.println("getPicture");
+      ByteBuffer mres = (ByteBuffer) getPicture().get();
+      System.err.println("getPicture().get()");
+      byte bytes[] = new byte[mres.capacity()];
+      System.err.println("mres.capacity()");
+      mres.get(bytes, 0, bytes.length);
+      System.err.println("mres.get()");
+      Checksum checksum = new CRC32();
+      System.err.println("CRC32()");
+      checksum.update(bytes, 0, bytes.length);
+      System.err.println("checksum.updates()");
+      long checksumValue = checksum.getValue();
+      System.err.println("checksum.getValue()");
+      System.out.println("CRC code of this person's buffer:  \n" + checksumValue);
+    }
   }
 
   public int compareTo(Person<E> anotherPerson) {

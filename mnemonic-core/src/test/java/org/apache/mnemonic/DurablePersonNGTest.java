@@ -27,12 +27,13 @@ import java.util.Random;
 import java.util.UUID;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import sun.misc.Unsafe;
 
 public class DurablePersonNGTest {
   private long cKEYCAPACITY;
 
   @Test(expectedExceptions = { OutOfHybridMemory.class })
-  public void testGenPeople() throws OutOfHybridMemory, RetrieveDurableEntityError {
+  public void testGenPeople() throws OutOfHybridMemory, RetrieveDurableEntityError, Exception {
     Random rand = Utils.createRandom();
     NonVolatileMemAllocator act = new NonVolatileMemAllocator(Utils.getNonVolatileMemoryAllocatorService("pmalloc"),
         1024 * 1024 * 8, "./pobj_person.dat", true);
@@ -89,16 +90,18 @@ public class DurablePersonNGTest {
             mbh.get().put((byte) rand.nextInt(255));
           }
           person.setPicture(mbh, true);
-          mbh.destroy();
+//          mbh.destroy();
         }
+        Unsafe unsafe = Utils.getUnsafe();
         mch = act.createChunk(size);
         if (mch != null) {
           Assert.assertNotNull(mch);
-         /* for (int i = 0; i < size; i++) {
-            mch.get().put((byte) rand.nextInt(255));
-          }*/
+          for (int i = 0; i < mch.getSize(); i++) {
+            //mch.get().put((byte) rand.nextInt(255));
+            unsafe.putByte(mch.get() + i, (byte) rand.nextInt(255));
+          }
           person.setFingerprint(mch, true);
-          mch.destroy();
+//          mch.destroy();
         }
         person.setAge((short) rand.nextInt(50));
         person.setName(String.format("Name: [%s]", UUID.randomUUID().toString()), true);
@@ -122,7 +125,7 @@ public class DurablePersonNGTest {
             }
             mother.setPicture(mbh, true);
 
-            mbh.destroy();
+//            mbh.destroy();
           }
           //mother = PersonFactory.create(act);
           mch = act.createChunk(size);
@@ -132,7 +135,7 @@ public class DurablePersonNGTest {
               mch.get().put((byte) rand.nextInt(255));
             }*/
             mother.setFingerprint(mch, true);
-            mch.destroy();
+//            mch.destroy();
           }
           mother.setAge((short) (50 + rand.nextInt(50)));
           mother.setName(String.format("Name: [%s]", UUID.randomUUID().toString()), true);
